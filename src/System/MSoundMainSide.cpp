@@ -40,7 +40,8 @@ namespace MSStageInfo {
 int MSMainProc::getMonteVillageActorArea(const Vec& param_1)
 {
 	int result = 4;
-	if (MSGMSound->unkCD == 8) {
+	// RE'd @0x802bc460: `lbz r0, 0xd1(r4)` reads unkD1 (offset 0xD1), not unkCD (0xCD).
+	if (MSGMSound->unkD1 == 8) {
 		// inline?
 		Vec local_10 = param_1;
 		local_10.y += 75.0f;

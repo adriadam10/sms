@@ -533,7 +533,9 @@ bool MSoundSE::checkSoundArea(u32 param_1, const Vec& param_2)
 
 	switch (param_1) {
 	case 7: {
-		Vec vec = *MSGMSound->unkAC[0].unk0;
+		// RE'd @0x800184d0: `lwz r6, 0xb0(r3)` reads unkAC[0].unk4 (offset 0xB0),
+		// not unkAC[0].unk0 (0xAC). Prior port had the wrong Vec pointer.
+		Vec vec = *MSGMSound->unkAC[0].unk4;
 		vec.y += 75.0f;
 		Vec vec1  = vec;
 		int iVar2 = gpCubeCamera->getInCubeNo(vec1);
@@ -596,16 +598,18 @@ JAISound* MSoundSE::startSoundActorInner(u32 param_1, JAISound** param_2,
 {
 	u32 uVar2 = MSound::getBstSwitch(param_1);
 	if (param_3 != (JAIActor*)0xffffffff) {
-		switch (MSGMSound->unkCD) {
+		// RE'd @0x80018114: `lbz r3, 0xd1(r3)` reads unkD1 (offset 0xD1),
+		// not unkCD (0xCD). Prior port picked the wrong stage-bank byte.
+		switch (MSGMSound->unkD1) {
 		case 7:
-			if (!checkSoundArea(MSGMSound->unkCD, *param_3->unk4)) {
+			if (!checkSoundArea(MSGMSound->unkD1, *param_3->unk4)) {
 				if (get_thing(param_1) != 1 && get_thing(param_1) != 0)
 					return nullptr;
 			}
 			break;
 
 		case 8:
-			if (!checkSoundArea(MSGMSound->unkCD, *param_3->unk4)) {
+			if (!checkSoundArea(MSGMSound->unkD1, *param_3->unk4)) {
 				if (get_thing(param_1) != 1 && get_thing(param_1) != 0)
 					return nullptr;
 			}
@@ -682,7 +686,8 @@ JAISound* MSoundSE::startSoundActorInner(u32 param_1, JAISound** param_2,
 	if (uVar2 & 0x80000000)
 		param_1 = getRandomID(param_1);
 
-	if (MSGMSound->unkCD == 8 && param_1 >= MSD_SE_MA_WALK_METALNET_LH1
+	// RE'd: same unkCD → unkD1 offset fix as above (`lbz r3, 0xd1(r3)`).
+	if (MSGMSound->unkD1 == 8 && param_1 >= MSD_SE_MA_WALK_METALNET_LH1
 	    && param_1 <= MSD_SE_MA_WALK_METALNET_RT2) {
 		param_1 -= 8;
 	}
