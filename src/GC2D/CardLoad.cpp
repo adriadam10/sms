@@ -156,7 +156,18 @@ void TCardLoad::load(JSUMemoryInputStream& stream)
 
 		unk1D4[i] = new TExPane(unk34, key);
 
-		((J2DPicture*)unk1D4[i]->getPane())->mBlack = 0x01006667;
+		// 0x00FFFF00, NOT 0x01006667: the upstream decomp fused two unrelated
+		// immediates (`lis 0x100` from 0x01000000-0x100, and the 0x6667 tail of
+		// the 0x66666667 divide-by-10 magic used for the p_10+ pane keys) into a
+		// phantom color. US disasm @ 0x8016e980: r21 = (0x100<<16) - 0x100 =
+		// 0x00FFFF00, stored to pane+0x140 (mBlack). Alpha MUST be 0 here: the
+		// glyph-quad TEV lerps lerp(mBlack, mWhite, tex) * pane-alpha, so any
+		// nonzero mBlack alpha paints the quad BACKGROUND as a translucent block
+		// during the fly-in fade. The case-3 whiten ramp ((r<<24)+0xFFFF00, r
+		// from 0) is consistent with exactly this init.
+		// Cherry-picked from someone/main@2073a73f (upstream field name kept as
+		// unk1D4; this fork hasn't renamed it to mTitleOverlayPanes yet).
+		((J2DPicture*)unk1D4[i]->getPane())->mBlack = 0x00FFFF00;
 
 		unk1D4[i]->setPaneAlpha(20, 0xff, 0);
 	}
