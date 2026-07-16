@@ -531,6 +531,23 @@ void J3DModel::entryModelData(J3DModelData* param_1, u32 param_2, u32 param_3)
 			if (param_1->getDrawMtxNum()) {
 				mDrawMtxBuf[i][j] = new (0x20) Mtx[param_1->getDrawMtxNum()];
 				mNrmMtxBuf[i][j]  = new (0x20) Mtx33[param_1->getDrawMtxNum()];
+#ifdef SMS_NATIVE_PLATFORM
+				// SB_LOG=j3dbuf: buffer->model registry, to match aurora's
+				// [pnzero] zero-matrix upload array bases to their model.
+				SB_LOGC("j3dbuf", "model=%p buf[%d][view=%d] draw=%p nrm=%p drawMtxNum=%d joints=%d views=%d",
+				        (void*)this, i, j, (void*)mDrawMtxBuf[i][j], (void*)mNrmMtxBuf[i][j],
+				        (int)param_1->getDrawMtxNum(), (int)param_1->getJointNum(), (int)param_3);
+				// SB_LOG=j3dbt: one-shot creation backtrace per big skinned
+				// model — names WHO creates the extra Mario-body models that
+				// viewCalc without ever running the envelope blend.
+				if (i == 0 && j == 0 && param_1->getDrawMtxNum() > 100 && sb_log_enabled("j3dbt")) {
+					sb_logf("j3dbt", "entryModelData model=%p drawMtxNum=%d backtrace:", (void*)this,
+					        (int)param_1->getDrawMtxNum());
+					void* fr[24];
+					int nf = backtrace(fr, 24);
+					backtrace_symbols_fd(fr, nf, 2);
+				}
+#endif
 			}
 		}
 	}
@@ -798,9 +815,19 @@ void J3DModel::viewCalc()
 			    getDrawMtxPtr(), mModelData->getDrawFullWgtMtxNum());
 		}
 		if (mModelData->getDrawMtxNum() > mModelData->getDrawFullWgtMtxNum()) {
-			J3DPSMtxArrayConcat(viewMtx, getWeightAnmMtx(0),
-			                    getDrawMtx(mModelData->getDrawFullWgtMtxNum()),
-			                    mModelData->getWEvlpMtxNum());
+			// Envelope draw slots [fullWgt, DrawMtxNum) reference the wEvlp envelope
+			// matrices BY INDEX (mDrawMtxIndex, repeats allowed) — Mario has 86
+			// envelope entries over 43 envelope matrices. The previous bulk
+			// sequential ArrayConcat(count=wEvlpNum) left every slot past
+			// fullWgt+wEvlpNum ZERO (garbage nrm palette -> black patches on skinned
+			// draws). Use the indexed concat exactly like the joint path above.
+			// Cherry-picked from someone/main@53f4c130.
+			const u16 fullWgt = mModelData->getDrawFullWgtMtxNum();
+			J3DMTXConcatArrayIndexedSrc(
+			    viewMtx, (const float(*)[3][4])getWeightAnmMtx(0),
+			    mModelData->mDrawMtxData.mDrawMtxIndex + fullWgt,
+			    getDrawMtxPtr() + fullWgt,
+			    (u32)(mModelData->getDrawMtxNum() - fullWgt));
 		}
 	}
 

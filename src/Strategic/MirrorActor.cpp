@@ -69,7 +69,12 @@ void TMirrorActor::perform(u32 cue, JDrama::TGraphics* graphics)
 		for (u16 i = 0; i < unk10->getModelData()->getJointNum(); ++i)
 			unk14->setAnmMtx(i, unk10->getAnmMtx(i));
 
-		for (u16 i = 0; i < unk10->getModelData()->getJointNum(); ++i)
+		// Retail (0x80224910) bounds this copy by wEvlpMtxNum (modelData+0x84),
+		// NOT jointNum: Mario has 29 joints but 43 weight-envelope matrices, so
+		// a jointNum bound leaves envelopes [29,43) zero in the mirror clone —
+		// zero draw matrices -> garbage normals -> black patches on every
+		// envelope-skinned surface (nose/gloves/legs) at file-select.
+		for (u16 i = 0; i < unk10->getModelData()->getWEvlpMtxNum(); ++i)
 			unk14->setWeightAnmMtx(i, unk10->getWeightAnmMtx(i));
 	}
 
