@@ -136,40 +136,47 @@ static u16 GetAtanTable(f32 param_1, f32 param_2)
 
 s16 matan(f32 param_1, f32 param_2)
 {
-	u16 result;
-	// TODO: currently too lazy to figure out how exactly they use symmetries
-	// here and what exact result transforms are needed in various branches.
-	// Probably should be something nice and symmetric and not this.
-	if (param_2 >= 0.0f) {
+	// matan is an octant-reduced atan2 (returns the s16 angle of the vector
+	// (param_1, param_2)). GetAtanTable(a,b) = atan(b/a) and is only valid for
+	// b <= a (its index (b/a)*1024 must stay in atntable[0..1024]); every branch
+	// below therefore hands it (larger, smaller) so the ratio is <= 1 — that is
+	// both the correctness AND the OOB-safety property.
+	//
+	// FAITHFUL transcription of retail matan (GMSE01 @0x8022ae08, threshold
+	// SDA2[-0x1768] = 0.0f). Cherry-picked from someone/main@59e43e6f: a
+	// previous "OOB fix" rewrite got the octant offsets wrong in the two
+	// |param_1|>=|param_2| diagonal branches (it emitted `table + 0x8000`
+	// where retail emits `0x8000 - table`, and likewise for the -Y octants).
+	// That reflected the reconstructed yaw, mirroring lookat targets around
+	// the eye.
+	if (param_2 < 0.0f) {
+		param_2 = -param_2;
 		if (param_1 >= 0.0f) {
-			if (param_1 >= param_2)
-				result = 0x0000 + GetAtanTable(param_1, param_2);
+			if (param_2 <= param_1)
+				return -(s16)GetAtanTable(param_1, param_2);
 			else
-				result = 0x4000 - GetAtanTable(param_2, param_1);
+				return (s16)(0xc000 + GetAtanTable(param_2, param_1));
 		} else {
 			param_1 = -param_1;
 			if (param_1 < param_2)
-				result = 0x4000 + GetAtanTable(param_2, param_1);
+				return (s16)(0xc000 - GetAtanTable(param_2, param_1));
 			else
-				result = 0x8000 - GetAtanTable(param_1, param_2);
+				return (s16)(0x8000 + GetAtanTable(param_1, param_2));
 		}
 	} else {
-		param_2 = -param_2;
-
 		if (param_1 < 0.0f) {
 			param_1 = -param_1;
-			if (param_1 >= param_2)
-				result = 0x8000 + GetAtanTable(param_1, param_2);
+			if (param_2 <= param_1)
+				return (s16)(0x8000 - GetAtanTable(param_1, param_2));
 			else
-				result = 0xC000 - GetAtanTable(param_2, param_1);
+				return (s16)(0x4000 + GetAtanTable(param_2, param_1));
 		} else {
 			if (param_1 < param_2)
-				result = 0xC000 + GetAtanTable(param_2, param_1);
+				return (s16)(0x4000 - GetAtanTable(param_2, param_1));
 			else
-				result = 0x0000 - GetAtanTable(param_1, param_2);
+				return (s16)GetAtanTable(param_1, param_2);
 		}
 	}
-	return result;
 }
 
 static inline void MsGetRotFromZaxisY2(const JGeometry::TVec3<f32>& axis,
