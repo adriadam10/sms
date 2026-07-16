@@ -735,7 +735,15 @@ void TCardLoad::perform(u32 cue, JDrama::TGraphics* graphics)
 		case 10:
 			MSBgm::startBGM(MSD_BGM_CHUBOSS2);
 			unk38->onFlag(0x1);
-			gpMarioOriginal->offFlag(MARIO_FLAG_GAME_OVER);
+			// GMSE01 @0x8016d840-4c: lwz gpMarioOriginal(r13-0x60d8); lwz 0x118;
+			// rlwinm r5,r5,0,17,15 (clear bit 0x8000); stw — retail strips Mario's
+			// FLUDD (MARIO_FLAG_HAS_FLUDD=0x8000) on the title→file-select transition
+			// (TMario::load turns it ON from the placement default; the file-select
+			// Mario must be bare). The previous port line cleared GAME_OVER (0x400) —
+			// a wrong-flag transcription that left FLUDD equipped at file-select.
+			// Cherry-picked from someone/main@e86b7b41 (upstream field names kept as
+			// unk*; this fork hasn't renamed them yet).
+			gpMarioOriginal->offFlag(MARIO_FLAG_HAS_FLUDD);
 			unk14 = 9;
 			unk18 = 1;
 			unkF0->getPane()->setAlpha(0);
