@@ -72,6 +72,10 @@ TCardLoad::TCardLoad(const char* name)
     , unkAC(nullptr)
     , unkB8(0)
     , unkBC(0)
+    , unkC0(0) // attract-idle frame counter; gates the 45s attract-movie fire
+               // (unkC0/120.0f > 45.0f) -- uninitialized on the JKR heap made
+               // the gate fire within a few frames instead of after 45s.
+               // Cherry-picked from someone/main@22a8534b.
     , unk25C(nullptr)
     , unk270(nullptr)
     , unk274(0)
@@ -896,7 +900,14 @@ bool TCardLoad::titleDraw()
 				if (unk20C[i] > 500) {
 					JUTRect bounds = unkF8[i]->getPane()->getBounds();
 					unkF8[i]->setPaneAlpha(25, 0, 255);
-					unk222[i] = 3;
+					// Retail (TCardLoad::perform, Ghidra: state-1 >500 sets
+					// *pbVar20=2) routes to state 2, which waits for the
+					// fade-out to complete via update() then resets unk20C=0
+					// before state 3's 300-frame faded hold. Setting state 3
+					// directly left unk20C ~501 (>300), so state 3 expired the
+					// same frame and the sparkle never stayed faded.
+					// Cherry-picked from someone/main@81a1de92.
+					unk222[i] = 2;
 				}
 				break;
 
