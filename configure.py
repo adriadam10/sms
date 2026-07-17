@@ -659,10 +659,15 @@ config.libs = [
             Object(Matching, "dolphin/os/OSReboot.c"),
             Object(Matching, "dolphin/os/OSReset.c"),
             Object(Matching, "dolphin/os/OSResetSW.c"),
-            # PAL (GMSP01) added OSGetLanguage/OSGetEuRgb60Mode/OSSetEuRgb60Mode
-            # to OSRtc.c. Those SDK functions are absent from JPN and not
-            # decompiled here, so link the extracted original on PAL.
-            Object(MatchingFor("GMSJ01"), "dolphin/os/OSRtc.c"),
+            # PAL (GMSP01) adds OSGetLanguage/OSGetEuRgb60Mode/OSSetEuRgb60Mode to
+            # OSRtc.c (absent from JPN's binary). Reconstructed 2026-07-17,
+            # human-supervised per AGENTS.md (Dolphin SDK requires supervision for
+            # autonomous agents) -- verified byte-exact against GMSP01 via objdiff.
+            # Not verified against JPN (no GMSJ01 disc available); listing both
+            # versions here only re-asserts JPN's pre-existing matching status
+            # (unconditional Matching before Fase 1's temporary PAL workaround),
+            # unchanged by this edit.
+            Object(MatchingFor("GMSJ01", "GMSP01"), "dolphin/os/OSRtc.c"),
             Object(Matching, "dolphin/os/OSStopwatch.c"),
             Object(Matching, "dolphin/os/OSSync.c"),
             Object(Matching, "dolphin/os/OSThread.c"),
