@@ -6,21 +6,12 @@
 #include <Camera/cameralib.hpp>
 #include <Player/MarioAccess.hpp>
 #include <JSystem/JMath.hpp>
-#ifdef SMS_NATIVE_PLATFORM
-#include <sb_log.h>
-#endif
 
 static const char* dummyMactorStringValue1 = "\0\0\0\0\0\0\0\0\0\0\0";
 static const char* SMS_NO_MEMORY_MESSAGE   = "メモリが足りません\n";
 
 TCameraOption* gpCameraOption;
-// Retail (ctor @0x80032130) resolves the load/settle camera from the map-tool
-// named "左サイドカメラ" (left-side camera; SDA2 string @0x80375ac8) — NOT
-// "ロードカメラ", which does not exist in the option-scene tool table, so the
-// search missed, mLoadPos stayed (0,0,0), and moveToLoadFromTitle panned the
-// camera toward the origin instead of the file-select framing. The
-// 左サイドカメラ tool sits at (1095,328,-13) = the oracle's settled camPos.
-const char* cLoadCamName = "左サイドカメラ";
+const char* cLoadCamName = "ロードカメラ";
 
 void CPolarSubCamera::chaseOptionCamera_(f32 param_1)
 {
@@ -117,11 +108,6 @@ TCameraOption::TCameraOption(JGeometry::TVec3<f32> param1,
 		s16 b = CLBRoundf<s16>(DEG2SHORTANGLE(60.0f));
 		CLBPolarToCross(origin, &unk30, 1000.0f, b, a);
 	}
-#ifdef SMS_NATIVE_PLATFORM
-	SB_LOGC("cam", "TCameraOption ctor: loadTool=%p titleAt=(%.1f,%.1f,%.1f) loadAt=(%.1f,%.1f,%.1f) upAt=(%.1f,%.1f,%.1f)",
-	        (void*)tool, mTitlePos.x, mTitlePos.y, mTitlePos.z,
-	        mLoadPos.x, mLoadPos.y, mLoadPos.z, mUpPos.x, mUpPos.y, mUpPos.z);
-#endif
 }
 
 void TCameraOption::moveToLoadFromTitle()
