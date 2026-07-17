@@ -778,7 +778,7 @@ bool TBaseNPC::npcThrowing()
 
 void TBaseNPC::npcMadIn()
 {
-	onLiveFlag(LIVE_FLAG_UNK2000000);
+	onLiveFlag(LIVE_FLAG_UNK4000000);
 
 	if (mActorType == 0x4000007 || checkActionFlag(NPC_ACTION_UNK1)) {
 		requestNpcAnm_(NPC_ANM_KIND_MAD, NPC_STOP_MOTION_BLEND_ON);
