@@ -25,6 +25,14 @@ public:
 	void reset();
 	void initMapObj();
 	THorizontalViking(const char*);
+
+	// Swing parameters observed in the ::reset RE (@0x801d6664, someone/main@2e74ee57):
+	// unk140 is the initial (target) swing angle read from the scene, unk144 tracks the
+	// current angle, unk148 carries the angular velocity (zeroed on reset). Named `unk`
+	// because the physical semantics aren't fully confirmed yet.
+	/* 0x140 */ f32 unk140;
+	/* 0x144 */ f32 unk144;
+	/* 0x148 */ f32 unk148;
 };
 
 class TViking : public THorizontalViking {
