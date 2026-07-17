@@ -31,7 +31,7 @@ void SMSSetupGCLogoRenderMode(GXRenderModeObj* rmo)
 	rmo->xFBmode         = VI_XFBMODE_DF;
 	rmo->field_rendering = 0;
 	rmo->aa              = 0;
-	JDrama::CalcRenderModeXFBHeight(rmo, SMSGetGCLogoVideoHeight());
+	JDrama::CalcRenderModeXFBHeight(rmo, SMSGetGCLogoVideoHeight(VIGetTvFormat()));
 	JDrama::CalcRenderModeVIXOrigin(rmo);
 	JDrama::CalcRenderModeVIYOrigin(rmo);
 	JDrama::CopyRenderModeSamplePattern(rmo, SMSAASamplePattern_non);
@@ -56,7 +56,7 @@ void SMSSetupTitleRenderMode(GXRenderModeObj* rmo)
 	rmo->xFBmode         = noFilter ? VI_XFBMODE_SF : VI_XFBMODE_DF;
 	rmo->field_rendering = 0;
 	rmo->aa              = 0;
-	JDrama::CalcRenderModeXFBHeight(rmo, SMSGetTitleVideoHeight());
+	JDrama::CalcRenderModeXFBHeight(rmo, SMSGetTitleVideoHeight(VIGetTvFormat()));
 	JDrama::CalcRenderModeVIXOrigin(rmo);
 	JDrama::CalcRenderModeVIYOrigin(rmo);
 	JDrama::CopyRenderModeSamplePattern(rmo, SMSAASamplePattern_non);
@@ -91,7 +91,7 @@ void SMSSetupGameRenderingInfo(JDrama::TDisplay* param_1, bool param_2)
 	rmo.efbHeight = SMSGetGameRenderHeight();
 	rmo.viWidth   = SMSGetGameVideoWidth();
 
-	JDrama::CalcRenderModeXFBHeight(&rmo, SMSGetGameVideoHeight());
+	JDrama::CalcRenderModeXFBHeight(&rmo, SMSGetGameVideoHeight(VIGetTvFormat()));
 	JDrama::CalcRenderModeVIXOrigin(&rmo);
 	JDrama::CalcRenderModeVIYOrigin(&rmo);
 	if (param_2 || noFilter) {
@@ -118,7 +118,7 @@ void SMSSetupMovieRenderingInfo(JDrama::TDisplay* param_1)
 	rmo.xFBmode         = noFilter ? VI_XFBMODE_SF : VI_XFBMODE_DF;
 	rmo.field_rendering = 0;
 	rmo.aa              = 0;
-	JDrama::CalcRenderModeXFBHeight(&rmo, SMSGetGameVideoHeight());
+	JDrama::CalcRenderModeXFBHeight(&rmo, SMSGetGameVideoHeight(VIGetTvFormat()));
 	JDrama::CalcRenderModeVIXOrigin(&rmo);
 	JDrama::CalcRenderModeVIYOrigin(&rmo);
 	JDrama::CopyRenderModeSamplePattern(&rmo, SMSAASamplePattern_non);

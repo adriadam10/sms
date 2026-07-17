@@ -1,4 +1,5 @@
 #include <System/MarDirector.hpp>
+#include <dolphin/vi.h>
 #include <JSystem/JKernel/JKRFileFinder.hpp>
 #include <JSystem/JKernel/JKRMemArchive.hpp>
 #include <JSystem/J3D/J3DGraphBase/J3DDrawBuffer.hpp>
@@ -306,7 +307,7 @@ bool TMarDirector::setupObjects()
 		JDrama::TLookAtCamera* cam
 		    = JDrama::TNameRefGen::search<JDrama::TLookAtCamera>("camera 1");
 		cam->mAspect = (u16)SMSGetGameVideoWidth() * 0.9134614f
-		               / (u16)SMSGetGameVideoHeight();
+		               / (u16)SMSGetGameVideoHeight(VIGetTvFormat());
 	}
 
 	unk80 = new JDrama::TViewObjPtrListT<JDrama::TViewObj>("イベントグループ");

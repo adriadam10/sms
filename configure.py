@@ -866,10 +866,19 @@ config.libs = [
             Object(Matching, "System/StageEventInfo.cpp"),
             Object(Matching, "System/StageUtil.cpp"),
             # PAL (GMSP01) changed SMSGet{Game,Title,GCLogo}VideoHeight to take a
-            # u32 arg (__FUl) instead of the JPN no-arg variants (__Fv). Until the
-            # PAL signatures are decompiled, link the extracted original on PAL so
-            # the __FUl symbols referenced by extracted callers resolve.
-            Object(MatchingFor("GMSJ01"), "System/Resolution.cpp"),
+            # u32 tvMode arg (__FUl) instead of the JPN no-arg variants (__Fv).
+            # Reconstructed 2026-07-17 from GMSP01's own disassembly: same switch
+            # body as JPN's no-arg version, just parameterized instead of calling
+            # VIGetTvFormat() internally. SMSGetGameVideoHeight/SMSGetTitleVideoHeight
+            # are byte-exact on GMSP01 (verified via objdiff). SMSGetGCLogoVideoHeight
+            # calls SMSGetGameVideoHeight directly per the retail `bl` target, but MWCC
+            # inlines that call for us at every source-level phrasing tried (direct
+            # return, intermediate variable, #pragma dont_inline around the call) while
+            # retail keeps it a real call -- likely an inlining-budget/order quirk, not
+            # yet understood. Left NonMatching on PAL (11/12 functions in this TU do
+            # match; the extracted original still links) rather than force a fakematch;
+            # JPN keeps its pre-existing unconditional Matching status, unaffected.
+            Object(Matching if config.version == "GMSJ01" else NonMatching, "System/Resolution.cpp"),
             Object(NonMatching, "System/PositionHolder.cpp"),
             Object(Matching, "System/ProcessMeter.cpp"),
             Object(NonMatching, "System/TimeRec.cpp"),
