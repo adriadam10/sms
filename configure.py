@@ -659,7 +659,10 @@ config.libs = [
             Object(Matching, "dolphin/os/OSReboot.c"),
             Object(Matching, "dolphin/os/OSReset.c"),
             Object(Matching, "dolphin/os/OSResetSW.c"),
-            Object(Matching, "dolphin/os/OSRtc.c"),
+            # PAL (GMSP01) added OSGetLanguage/OSGetEuRgb60Mode/OSSetEuRgb60Mode
+            # to OSRtc.c. Those SDK functions are absent from JPN and not
+            # decompiled here, so link the extracted original on PAL.
+            Object(MatchingFor("GMSJ01"), "dolphin/os/OSRtc.c"),
             Object(Matching, "dolphin/os/OSStopwatch.c"),
             Object(Matching, "dolphin/os/OSSync.c"),
             Object(Matching, "dolphin/os/OSThread.c"),
@@ -857,7 +860,11 @@ config.libs = [
             Object(NonMatching, "System/MarioGamePad.cpp"),
             Object(Matching, "System/StageEventInfo.cpp"),
             Object(Matching, "System/StageUtil.cpp"),
-            Object(Matching, "System/Resolution.cpp"),
+            # PAL (GMSP01) changed SMSGet{Game,Title,GCLogo}VideoHeight to take a
+            # u32 arg (__FUl) instead of the JPN no-arg variants (__Fv). Until the
+            # PAL signatures are decompiled, link the extracted original on PAL so
+            # the __FUl symbols referenced by extracted callers resolve.
+            Object(MatchingFor("GMSJ01"), "System/Resolution.cpp"),
             Object(NonMatching, "System/PositionHolder.cpp"),
             Object(Matching, "System/ProcessMeter.cpp"),
             Object(NonMatching, "System/TimeRec.cpp"),
