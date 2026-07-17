@@ -52,7 +52,7 @@ void TEnemyAttachment::forceKill()
 
 	if (unk160->checkLiveFlag(LIVE_FLAG_HIDDEN)) {
 		unk160->kill();
-		unk160->onLiveFlag(LIVE_FLAG_UNK20000);
+		unk160->onLiveFlag(LIVE_FLAG_UNK40000);
 	}
 }
 
