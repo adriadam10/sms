@@ -307,27 +307,36 @@ void TCardLoad::load(JSUMemoryInputStream& stream)
 
 	int local_90[] = { 2, 3, 4, 5, 6, 7, 8 };
 
+	// The per-stage score display (stage labels st_*, shine icons sh*, score
+	// digits n_*) lives in the SCORE screen load_score.blo (= unk2C), not the
+	// main load.blo (= unk28): those tags only exist in load_score.blo
+	// (verified against the disc: load.blo has 0 sh*/st_* tags, load_score.blo
+	// has 77 sh* + 9 st_*). Searching unk28 returned the region-tolerant dummy
+	// for all of them. Cherry-picked from someone/main@4c701dc1.
 	for (int i = 0; i < 7; ++i) {
-		unk584[i].unk0 = (J2DPicture*)unk28->search('st_0' + i);
+		unk584[i].unk0 = (J2DPicture*)unk2C->search('st_0' + i);
 		for (int j = 0; j < 3; ++j)
 			unk584[i].unk4[j]
-			    = (J2DPicture*)unk28->search('n_0a' + i * 0x100 + j);
+			    = (J2DPicture*)unk2C->search('n_0a' + i * 0x100 + j);
 
 		int tmp = local_90[i];
 
 		for (int j = 0; j < 8; ++j) {
-			unk584[i].unk10[j] = unk28->search('sh0a' + i * 0x100 + j);
+			unk584[i].unk10[j] = unk2C->search('sh0a' + i * 0x100 + j);
 
 			if (!SMS_isGetShine(tmp, j, false))
 				unk584[i].unk10[j]->hide();
 		}
 
 		for (int j = 0; j < 2; ++j) {
-			unk584[i].unk30[j] = unk28->search('sh0i' + i * 0x100 + j);
+			unk584[i].unk30[j] = unk2C->search('sh0i' + i * 0x100 + j);
 			unk584[i].unk30[j]->hide();
 		}
 
-		unk584[i].unk38 = unk28->search('sh0k' + i);
+		// Per-stage tag indexes the STAGE digit (i*0x100), like sh0a/sh0i
+		// above -- not the last char. 'sh0k'+i searched sh0l/sh0m/... which
+		// don't exist; the real tags are sh1k..sh6k.
+		unk584[i].unk38 = unk2C->search('sh0k' + i * 0x100);
 		unk584[i].unk38->hide();
 	}
 
@@ -336,11 +345,13 @@ void TCardLoad::load(JSUMemoryInputStream& stream)
 		unk728[i]->hide();
 	}
 
-	unk740 = unk28->search('\0t_p');
-	unk744 = unk28->search('s_tl');
-	unk748 = (J2DPicture*)unk28->search('\0n_a');
-	unk74C = (J2DPicture*)unk28->search('\0n_b');
-	unk750 = (J2DPicture*)unk28->search('\0n_c');
+	// Score-total display (total-shine title t_p / s_tl, total-count digits
+	// n_a/n_b/n_c) is in the score screen load_score.blo (= unk2C), not load.blo.
+	unk740 = unk2C->search('\0t_p');
+	unk744 = unk2C->search('s_tl');
+	unk748 = (J2DPicture*)unk2C->search('\0n_a');
+	unk74C = (J2DPicture*)unk2C->search('\0n_b');
+	unk750 = (J2DPicture*)unk2C->search('\0n_c');
 }
 
 void TCardLoad::setupTitleScreen() { }
