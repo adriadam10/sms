@@ -869,6 +869,15 @@ bool TCardLoad::titleDraw()
 	case 2: {
 		u16 alpha = unkF0->getPane()->getAlpha() + 1;
 		if (alpha > 255) {
+			// RE'd against US retail (TCardLoad::perform case 2 @0x8016c060,
+			// Ghidra): `uVar9 = 0xff;` clamps alpha BEFORE the unconditional
+			// store below. Without this clamp, alpha wraps 0->256 (truncated
+			// to 0 by J2DPane::setAlpha(u8)) every frame it's NOT saturated,
+			// so the completion check below (drives both the intro-overlay
+			// fade-out and the unk18==4 PRESS START transition) only runs
+			// once per ~256 frames instead of every frame once saturated.
+			// Cherry-picked from someone/main@fb4a396a.
+			alpha = 255;
 			bool any = true;
 			for (int i = 0; i < 13; ++i)
 				any &= unk1D4[i]->update();
