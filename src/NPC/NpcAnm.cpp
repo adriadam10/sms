@@ -746,7 +746,7 @@ void TBaseNPC::npcSinking()
 		}
 
 		if (!CLBChaseGeneralConstantSpecifySpeed(&mPosition.y, dVar6, dVar7)) {
-			onLiveFlag(LIVE_FLAG_SINK_BOTTOM);
+			onLiveFlag(LIVE_FLAG_UNK1000000);
 			onHitFlag(HIT_FLAG_NO_COLLISION);
 			requestNpcAnm_(NPC_ANM_KIND_UNK10, NPC_STOP_MOTION_BLEND_ON);
 		}
