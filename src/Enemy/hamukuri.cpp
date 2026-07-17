@@ -1796,7 +1796,7 @@ void TDangoHamuKuri::forceKill()
 		mSpine->reset();
 		mSpine->setNext(&TNerveSmallEnemyDie::theNerve());
 		mSpine->pushAfterCurrent(mSpine->getDefault());
-		onLiveFlag(LIVE_FLAG_UNK20000);
+		onLiveFlag(LIVE_FLAG_UNK40000);
 	}
 }
 
