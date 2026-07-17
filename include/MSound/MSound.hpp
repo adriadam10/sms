@@ -170,18 +170,23 @@ public:
 	/* 0x9C */ MSBgmXFade* unk9C;
 	/* 0xA0 */ u32 unkA0;
 	/* 0xA4 */ u32 unkA4;
-	/* 0xA8 */ u8 unkA8;
-	/* 0xAC */ JAICamera unkAC[2];
-	/* 0xC4 */ JAISound* unkC4;
-	/* 0xC8 */ u8 unkC8[5];
-	/* 0xCD */ u8 unkCD;
-	/* 0xCE */ u8 unkCE;
-	/* 0xCF */ u8 unkCF;
-	/* 0xD0 */ u8 unkD0;
-	/* 0xD1 */ u8 unkD1;
-	/* 0xD2 */ char unkD2[0x304 - 0xD2];
-	/* 0x304 */ JASystem::TTrack::TOuterParam* unk304;
-	/* 0x308 */ char unk308[0x4];
+	// TODO: fabricated 4-byte member. The binary places the gate flag byte at
+	// 0xAC (not 0xA8) and the JAICamera array at 0xB0, so a 4-byte member is
+	// missing here. Field names below are historical and lag their true offset
+	// by 4; renaming is deferred to avoid churn against shared unkXX names.
+	/* 0xA8 */ u32 unkA8_2; // fabricated
+	/* 0xAC */ u8 unkA8;
+	/* 0xB0 */ JAICamera unkAC[2];
+	/* 0xC8 */ JAISound* unkC4;
+	/* 0xCC */ u8 unkC8[5];
+	/* 0xD1 */ u8 unkCD;
+	/* 0xD2 */ u8 unkCE;
+	/* 0xD3 */ u8 unkCF;
+	/* 0xD4 */ u8 unkD0;
+	/* 0xD5 */ u8 unkD1;
+	/* 0xD6 */ char unkD2[0x304 - 0xD2];
+	/* 0x308 */ JASystem::TTrack::TOuterParam* unk304;
+	/* 0x30C */ char unk308[0x4];
 };
 
 extern MSound* MSGMSound;
