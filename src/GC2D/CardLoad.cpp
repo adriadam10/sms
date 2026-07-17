@@ -72,10 +72,6 @@ TCardLoad::TCardLoad(const char* name)
     , unkAC(nullptr)
     , unkB8(0)
     , unkBC(0)
-    , unkC0(0) // attract-idle frame counter; gates the 45s attract-movie fire
-               // (unkC0/120.0f > 45.0f) -- uninitialized on the JKR heap made
-               // the gate fire within a few frames instead of after 45s.
-               // Cherry-picked from someone/main@22a8534b.
     , unk25C(nullptr)
     , unk270(nullptr)
     , unk274(0)
