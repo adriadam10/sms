@@ -60,7 +60,7 @@ void TMapObjBase::awake()
 
 void TMapObjBase::sleep()
 {
-	onLiveFlag(LIVE_FLAG_UNK4000);
+	onLiveFlag(LIVE_FLAG_UNK8000);
 	onHitFlag(HIT_FLAG_NO_COLLISION);
 	removeMapCollision();
 }

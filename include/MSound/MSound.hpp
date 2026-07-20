@@ -169,12 +169,8 @@ public:
 	/* 0x98 */ MSModBgm* unk98;
 	/* 0x9C */ MSBgmXFade* unk9C;
 	/* 0xA0 */ u32 unkA0;
-	/* 0xA4 */ u32 unkA4;
-	// TODO: fabricated 4-byte member. The binary places the gate flag byte at
-	// 0xAC (not 0xA8) and the JAICamera array at 0xB0, so a 4-byte member is
-	// missing here. Field names below are historical and lag their true offset
-	// by 4; renaming is deferred to avoid churn against shared unkXX names.
-	/* 0xA8 */ u32 unkA8_2; // fabricated
+	/* 0xA4 */ u32 unkA4_2; // fabricated
+	/* 0xA8 */ u32 unkA4;
 	/* 0xAC */ u8 unkA8;
 	/* 0xB0 */ JAICamera unkAC[2];
 	/* 0xC8 */ JAISound* unkC4;

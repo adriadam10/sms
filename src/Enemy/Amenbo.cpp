@@ -237,7 +237,7 @@ void TAmenbo::forceKill()
 
 	// amenbo die if no water ;(
 	if (mSpine->getLatestNerve() != &TNerveSmallEnemyDie::theNerve()) {
-		onLiveFlag(LIVE_FLAG_UNK20000);
+		onLiveFlag(LIVE_FLAG_UNK40000);
 		kill();
 	}
 }

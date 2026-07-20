@@ -157,7 +157,7 @@ void TFlagManager::setFlag(u32 flag, s32 value)
 		}
 		break;
 	case 7:
-		if (flag < 0x70002) {
+		if (flag < 0x70003) {
 			mSavedOptionBools[low >> 3] &= ~(1 << (low & 7));
 			mSavedOptionBools[low >> 3] |= (value & 1) << (low & 7);
 		}
@@ -168,7 +168,7 @@ void TFlagManager::setFlag(u32 flag, s32 value)
 		}
 		break;
 	case 9:
-		if (flag < 0x90001) {
+		if (flag < 0x90002) {
 			mOptionBools[low >> 3] &= ~(1 << (low & 7));
 			mOptionBools[low >> 3] |= (value & 1) << (low & 7);
 		}

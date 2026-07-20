@@ -499,14 +499,14 @@ void TGCConsole2::startAppearTelop(bool param_1)
 
 void TGCConsole2::startDisappearTelop()
 {
-	if (unk34[15] || !unk520->getPane()->isVisible()) {
+	if (unk34[15] || !unk524->getPane()->isVisible()) {
 		return;
 	}
 
 	unk34[15] = 1;
 	unk5A     = 1;
 
-	unk520->updatePaneOffset(80, 0, getOffsetForBelowScreen(unk520));
+	unk524->updatePaneOffset(80, 0, getOffsetForBelowScreen(unk524));
 }
 
 void TGCConsole2::startDisappearTimer()
