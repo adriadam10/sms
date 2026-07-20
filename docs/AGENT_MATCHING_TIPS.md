@@ -29,6 +29,7 @@ Instead, introduce the relevant fields and use them, or rather even getters/sett
 
 The compiler never reorders memory stores, loads and function calls relative to one another.
 They always should be performed in source code in the exact order they appear in target assembly.
+This a good first place to focus on when matching, as it helps shape the rest of the function.
 
 ## MWCC can eliminate redundant reads, but not writes
 
@@ -330,6 +331,17 @@ When a TU is compiled with `-inline deferred` (see TU-specific flags in `configu
 
 `JGeometry::TVec3<f32>` is a 12-byte struct with `x`, `y`, `z` float members. How you read/write it drastically affects code generation.
 
+### Use the inlines
+
+`TVec3` and related `JGeometry` types have lots of inlines, and most of the time the original code would have used those.
+When naive decompilation of the math doesn't work out, try using the inlines.
+
+### Multiplication by zero/one
+
+MWCC can optimize out multiplication by floating point one or zero written out explicitly in code, but fails to do so when the multiplication comes from an inlined function.
+This routinely occurs when an "up" vector is created and then cross-multiplied with another vector -- codegen contains trivial multiplications by zero or one.
+When decompiled naively as `1.0f * unk170.z - 0.0f * unk170.y`, MWCC will optimize the multiplications out, but if the "up" vector is properly created and the `cross` inline is used, it will fail to optimize them out, achieving the desired codegen.
+
 ### Construction: component-by-component vs constructor
 
 ```cpp
@@ -405,6 +417,13 @@ following `fmadds`/`fnmsubs`. This happens when the original literally wrote
 extra `-1.0` load + `fmuls`. Concrete case (`BathWaterManager.cpp`
 `calcBathtub`): `-1.0f * unkC.y` matched; `-unkC.y` gave `fneg` and did not.
 
+### Trouble in fnmsubs town
+
+Computation-heavy code commonly has code like `B - A * C` or `A * C - B`  for floating-point A, B, C. E.g. any cross product will have analogous code.
+MWCC likes to compile such code into PowerPC `fmsubs` and `fnmsubs` instructions, but they have a quirk in how they are implemented related to double to single precision conversions: technically, fnmsubs is `-float(A * C - B)`, but MWCC uses it for `B - A * C`.
+Decompilers like ghidra and m2c like to preserve this technicality and commonly emit code like `-(a * b - c * d)` in code like vector cross products.
+Rewriting it as `c * d - a * b`, opening the braces, usually helps matching it better.
+
 ## Reading a source array through `void*` defeats CSE (controls loop unroll)
 
 When a loop copies the same source element to several destinations, e.g.
@@ -472,3 +491,20 @@ three `(void)&` hacks and still only reached ~92% (residual store scheduling);
 rewriting the `dist` copy and the `m` fill as small unrolled `for` loops removed
 the hacks and took it to 99.7%. Prefer the loop form — it's both cleaner and a
 better structural match than address-of forcing.
+
+## Triviality of a type influences codegen
+
+A user-declared destructor (even an empty `~T() {}`) makes a class non-trivial, and MWCC pins non-trivial types to memory instead of promoting them into registers.
+Triviality propagates: a non-trivial member/base makes the enclosing class non-trivial too.
+
+Two symptoms of a *missing* destructor, both meaning "the target keeps this in memory but our build cached it in a register":
+
+- **Struct fields reload across calls in the target, but ours caches them.**
+  A trivial struct is scalar-replaced (fields live in registers across calls); a non-trivial one is reloaded from memory after any opaque call.
+- **The target spills a freshly-`new`'d object pointer to the stack and reloads it as `this`, but ours keeps it in a register.**
+  For `new T()` with a non-trivial `T`, the constructed object is a separate address-taken temporary with a stack home, so `this` is reloaded from the stack during construction.
+  Only visible when the constructor is inlined (out-of-line ctors call a real `bl` and never show it).
+
+Fix: give the smallest offending value/helper type an empty `~T() {}` and re-check.
+This is a global change, so re-run the baseline — one destructor can fix (or shift) many callsites at once.
+Concrete case: adding `~TMsRange<f32>()` (a field of `TSmallEnemyParams`) took several `TFooManager::load` functions from ~95% to 100%.

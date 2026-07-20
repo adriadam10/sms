@@ -879,7 +879,12 @@ config.libs = [
             # match; the extracted original still links) rather than force a fakematch;
             # JPN keeps its pre-existing unconditional Matching status, unaffected.
             Object(Matching if config.version == "GMSJ01" else NonMatching, "System/Resolution.cpp"),
-            Object(NonMatching, "System/PositionHolder.cpp"),
+            # PositionHolder.cpp fixed upstream (stream >> operators instead of
+            # stream.read/readF32) verified Matching on GMSJ01. Not yet verified
+            # against GMSP01 after the merge -- left NonMatching on PAL pending a
+            # PAL objdiff check, same conservative pattern as Resolution.cpp above.
+            Object(Matching if config.version == "GMSJ01" else NonMatching, "System/PositionHolder.cpp"),
+
             Object(Matching, "System/ProcessMeter.cpp"),
             Object(NonMatching, "System/TimeRec.cpp"),
             Object(NonMatching, "System/DrawSyncManager.cpp"),
